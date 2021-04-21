@@ -1,11 +1,14 @@
+// Set dimensions
 const h = 500;
-const w = 900;
-const paddingX = 175;
+const w = 950;
+const paddingX = 200;
 const paddingY = 100;
 
+// Set time parsers for data
 const parseYear = d3.timeParse("%Y");
 const parseMin = d3.timeParse("%M:%S");
 
+// Add title
 d3.select("#root")
   .append("div")
   .attr("id", "container")
@@ -13,6 +16,7 @@ d3.select("#root")
   .text("Doping in Professional Bicycle Races")
   .attr("id", "title");
 
+// Create svg
 const svg = d3
   .select("#container")
   .append("svg")
@@ -20,11 +24,13 @@ const svg = d3
   .attr("height", h)
   .attr("viewBox", `0 0 ${w} ${h}`);
 
+// Fetch info
 fetch(
   "https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/cyclist-data.json"
 )
   .then((res) => res.json())
   .then((json) => {
+    // Parse data
     const data = json.map((obj) => {
       return {
         ...obj,
@@ -33,22 +39,73 @@ fetch(
       };
     });
 
-    const minYear = d3.min(data, (d) => d.Year);
+    // X scale
+    const minYear = new Date(d3.min(data, (d) => d.Year).getTime());
     const maxYear = d3.max(data, (d) => d.Year);
     const xScale = d3
       .scaleTime()
       .range([paddingX, w - paddingX])
-      .domain([minYear, maxYear])
+      .domain([minYear.setYear(minYear.getYear() - 2), maxYear])
       .nice();
 
-    const minMin = d3.min(data, (d) => d.Time);
+    // Y scale
+    const minMin = new Date(d3.min(data, (d) => d.Time).getTime());
     const maxMin = d3.max(data, (d) => d.Time);
     const yScale = d3
       .scaleTime()
-      .domain([maxMin, minMin])
+      .domain([maxMin, minMin.setSeconds(minMin.getSeconds() - 15)])
       .range([paddingY, h - paddingY])
       .nice();
 
+    // X axis
+    const xAxis = d3.axisBottom(xScale);
+    svg
+      .append("g")
+      .attr("transform", `translate(0, ${h - paddingY})`)
+      .call(xAxis)
+      .attr("id", "x-axis")
+      .attr("color", "rgb(221, 221, 221)");
+
+    // X axis label
+    svg
+      .append("text")
+      .attr("text-anchor", "middle")
+      .attr("transform", `translate(${w / 2}, ${h - paddingY + 40})`)
+      .text("Year")
+      .attr("font-weight", "bold")
+      .attr("fill", "rgb(221, 221, 221)");
+
+    // Y axis
+    const yAxis = d3.axisLeft(yScale).tickFormat(d3.timeFormat("%M:%S"));
+    svg
+      .append("g")
+      .attr("transform", `translate(${paddingX}, 0)`)
+      .call(yAxis)
+      .attr("id", "y-axis")
+      .attr("color", "rgb(221, 221, 221)");
+
+    // Y axis label
+    svg
+      .append("text")
+      .attr("text-anchor", "middle")
+      .attr("transform", `translate(${paddingX - 50}, ${h / 2}) rotate(-90)`)
+      .text("Finish Time")
+      .attr("font-weight", "bold")
+      .attr("fill", "rgb(221, 221, 221)");
+
+    // Grid lines for y axis
+    svg
+      .append("g")
+      .attr("transform", `translate(${paddingX}, 0)`)
+      .call(
+        yAxis
+          .ticks(d3.timeSecond.every(30))
+          .tickFormat("")
+          .tickSize(-w + 2 * paddingX)
+      )
+      .attr("color", "rgba(221, 221, 221, 0.1)");
+
+    // Add data into graph
     svg
       .selectAll("circle")
       .data(data)
@@ -68,50 +125,20 @@ fetch(
         const year = d3.timeFormat("%Y")(d.Year);
         const time = d3.timeFormat("%M:%S")(d.Time);
         const localData = [`Name: ${d.Name}`, `Year: ${year}`, `Time: ${time}`];
+        const mouse = d3.pointer(e);
         tooltip
-          .style("opacity", 1)
+          .attr("transform", `translate(${mouse[0] + 15}, ${mouse[1] - 25})`)
+          .style("display", "block")
           .attr("data-year", d3.select(e.target).attr("data-xvalue"))
           .selectAll("text")
           .data(localData)
-          .text((d) => d);
+          .text((val) => val);
       })
       .on("mouseout", (e) => {
-        tooltip.attr("data-year", "").style("opacity", 0);
+        tooltip.attr("data-year", "").style("display", "none");
       });
 
-    const xAxis = d3.axisBottom(xScale);
-    svg
-      .append("g")
-      .attr("transform", `translate(0, ${h - paddingY + 20})`)
-      .call(xAxis)
-      .attr("id", "x-axis")
-      .attr("color", "rgb(221, 221, 221)")
-      .tickSize(200);
-
-    svg
-      .append("text")
-      .attr("text-anchor", "middle")
-      .attr("transform", `translate(${w / 2}, ${h - paddingY + 60})`)
-      .text("Year")
-      .attr("font-weight", "bold")
-      .attr("fill", "rgb(221, 221, 221)");
-
-    const yAxis = d3.axisLeft(yScale).tickFormat(d3.timeFormat("%M:%S"));
-    svg
-      .append("g")
-      .attr("transform", `translate(${paddingX - 20}, 0)`)
-      .call(yAxis)
-      .attr("id", "y-axis")
-      .attr("color", "rgb(221, 221, 221)");
-
-    svg
-      .append("text")
-      .attr("text-anchor", "middle")
-      .attr("transform", `translate(${paddingX - 75}, ${h / 2}) rotate(-90)`)
-      .text("Finish Time")
-      .attr("font-weight", "bold")
-      .attr("fill", "rgb(221, 221, 221)");
-
+    // Create legend
     const legend = svg
       .append("g")
       .attr("id", "legend")
@@ -153,11 +180,15 @@ fetch(
       .attr("fill", "rgb(221, 221, 221)")
       .text("No doping allegations");
 
-    const tooltip = svg.append("g").attr("id", "tooltip").style("opacity", 0);
+    // Create tooltip
+    const tooltip = svg
+      .append("g")
+      .attr("id", "tooltip")
+      .style("display", "none");
 
     tooltip
       .append("rect")
-      .attr("width", 180)
+      .attr("width", 200)
       .attr("height", 70)
       .attr("rx", 10)
       .attr("ry", 10)
@@ -180,22 +211,4 @@ fetch(
       .attr("x", 10)
       .attr("y", 60)
       .attr("fill", "rgb(221, 221, 221)");
-
-    svg.on("mousemove", function (e) {
-      const mouse = d3.pointer(e);
-      tooltip.attr(
-        "transform",
-        `translate(${mouse[0] + 15}, ${mouse[1] - 25})`
-      );
-    });
-
-    // Lines to complete axis
-
-    svg
-      .append("line")
-      .attr("x1", 0)
-      .attr("x2", 200)
-      .attr("y1", 0)
-      .attr("y2", 200)
-      .attr("fill", "black");
   });
