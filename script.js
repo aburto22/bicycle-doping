@@ -126,6 +126,7 @@ fetch(
         const time = d3.timeFormat("%M:%S")(d.Time);
         const localData = [`Name: ${d.Name}`, `Year: ${year}`, `Time: ${time}`];
         const mouse = d3.pointer(e);
+
         tooltip
           .attr("transform", `translate(${mouse[0] + 15}, ${mouse[1] - 25})`)
           .style("display", "block")
@@ -133,6 +134,16 @@ fetch(
           .selectAll("text")
           .data(localData)
           .text((val) => val);
+
+        const tooltipTextWidth = d3.max(
+          localData.map((val, i) =>
+            Math.ceil(
+              Number(document.querySelector("#tooltip-" + i).getBBox().width)
+            )
+          )
+        );
+
+        tooltip.select("rect").attr("width", tooltipTextWidth + 25);
       })
       .on("mouseout", (e) => {
         tooltip.attr("data-year", "").style("display", "none");
@@ -189,26 +200,30 @@ fetch(
     tooltip
       .append("rect")
       .attr("width", 200)
-      .attr("height", 70)
+      .attr("height", 66)
       .attr("rx", 10)
       .attr("ry", 10)
-      .attr("fill", "gray");
+      .attr("fill", "rgba(120, 120, 120, 0.9)")
+      .attr("stroke", "rgba(221, 221, 221, 0.1)");
 
     tooltip
       .append("text")
       .attr("x", 10)
       .attr("y", 20)
+      .attr("id", "tooltip-0")
       .attr("fill", "rgb(221, 221, 221)");
 
     tooltip
       .append("text")
       .attr("x", 10)
-      .attr("y", 40)
+      .attr("y", 38)
+      .attr("id", "tooltip-1")
       .attr("fill", "rgb(221, 221, 221)");
 
     tooltip
       .append("text")
       .attr("x", 10)
-      .attr("y", 60)
+      .attr("y", 56)
+      .attr("id", "tooltip-2")
       .attr("fill", "rgb(221, 221, 221)");
   });
