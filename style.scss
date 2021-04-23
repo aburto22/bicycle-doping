@@ -12,10 +12,10 @@
 body {
   background: radial-gradient(farthest-corner at 50% 60%, rgb(92, 92, 92) 10%, rgb(107, 106, 106));
   background-attachment: fixed;
+  height: 100vh;
 }
 
 #root {
-  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -41,4 +41,11 @@ body {
 
 h2 {
   color: rgb(47, 66, 94);
+}
+
+footer {
+  font-size: 0.8rem;
+  text-align: center;
+  margin-top: 3rem;
+  color: white;
 }
