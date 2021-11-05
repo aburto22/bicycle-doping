@@ -26,12 +26,13 @@ body {
 }
 
 main {
-  text-align: center;
   padding: 1rem;
 
   svg {
     max-width: 100%;
     height: auto;
+    display: block;
+    margin: auto;
   }
 }
 
