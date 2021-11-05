@@ -1,5 +1,5 @@
 :root {
-  font-size: 13px;
+  font-size: 0.75rem;
 }
 
 * {
@@ -12,30 +12,26 @@
 body {
   background: radial-gradient(farthest-corner at 50% 60%, rgb(92, 92, 92) 10%, rgb(107, 106, 106));
   background-attachment: fixed;
-  height: 100vh;
-}
-
-#root {
+  min-height: 100vh;
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-#container {
-  min-width: 500px;
-  min-height: 300px;
+#title {
+  margin: 1.5rem 1rem;
+  font-size: 2.5rem;
+  color: rgb(221, 221, 221);
+  text-align: center;
+}
+
+main {
   text-align: center;
   padding: 1rem;
 
   svg {
     max-width: 100%;
-  }
-  
-  h1 {
-    margin-top: 4rem;
-    padding: 0 0 1rem 0;
-    font-size: 2.5rem;
-    color: rgb(221, 221, 221);
+    height: auto;
   }
 }
 
@@ -46,6 +42,6 @@ h2 {
 footer {
   font-size: 0.8rem;
   text-align: center;
-  margin-top: 3rem;
+  margin: 1.5rem 1rem;
   color: white;
 }

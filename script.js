@@ -1,24 +1,16 @@
 // Set dimensions
 const h = 500;
 const w = 950;
-const paddingX = 200;
+const paddingX = 150;
 const paddingY = 100;
 
 // Set time parsers for data
 const parseYear = d3.timeParse("%Y");
 const parseMin = d3.timeParse("%M:%S");
 
-// Add title
-d3.select("#root")
-  .append("div")
-  .attr("id", "container")
-  .append("h1")
-  .text("Doping in Professional Bicycle Races")
-  .attr("id", "title");
-
 // Create svg
 const svg = d3
-  .select("#container")
+  .select("main")
   .append("svg")
   .attr("width", w)
   .attr("height", h)
